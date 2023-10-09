@@ -1,0 +1,41 @@
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+-- DEVDB - AC02 – Transação e Loop- Voo 5
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+/* * * * * * INFORMAÇÕES DO GRUPO * * * * *
+
+NOME COMPLETO:Rebeca Cleto	RA:2203471
+NOME COMPLETO:Leonardo Goia RA:2202461
+NOME COMPLETO:Kevyn Alexsander RA:2202760
+*/
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
+
+select * into AssentosVoo5 from AssentosVoo where idVoo= 5
+select * into ReservaVoo5 from ReservaVoo
+
+declare @qtdCiclo tinyint = 0,@assento tinyint;
+while 1 = 1
+begin
+    set @qtdCiclo += 1;
+    declare @assento tinyint;
+    if exists (select 1 from AssentosVoo5 where idVoo = 5 AND disponivel = 1)
+    begin
+        set @assento = @qtdCiclo;
+        begin transaction
+        insert into ReservaVoo5 (idVoo, idCiclo, data)
+        values (5, @qtdCiclo, getdate());
+        update top (1) AssentosVoo5
+        set disponivel = 0
+        where idVoo = 5 AND disponivel = 1
+        commit
+    end
+    else
+    begin
+        print 'Transação não efetuada, pois não foi possível encontrar assentos no voo desejado'
+        rollback
+        break
+    end
+end
+
+select * from ReservaVoo5 where idVoo= 5
+select * from AssentosVoo5 where idVoo= 5
